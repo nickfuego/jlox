@@ -5,6 +5,7 @@ final class Token {
     final String lexeme;
     final Object literal;
     final int line;
+    // final int column; ??
 
     Token(final TokenType type, final String lexeme, final Object literal, final int line) {
         this.type = type;
