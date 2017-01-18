@@ -8,6 +8,27 @@ import java.util.List;
 import java.util.Map;
 
 class Scanner {
+    private static final Map<String, TokenType> keywords = new HashMap<String, TokenType>() {
+        {
+            put("and", AND);
+            put("class", CLASS);
+            put("else", ELSE);
+            put("false", FALSE);
+            put("for", FOR);
+            put("fun", FUN);
+            put("if", IF);
+            put("nil", NIL);
+            put("or", OR);
+            put("print", PRINT);
+            put("return", RETURN);
+            put("super", SUPER);
+            put("this", THIS);
+            put("true", TRUE);
+            put("var", VAR);
+            put("while", WHILE);
+        }
+    };
+
     private final String source;
     private final List<Token> tokens = new ArrayList<>();
 
@@ -96,6 +117,9 @@ class Scanner {
             default:
                 if (isDigit(c)) {
                     number();
+                }
+                if (isAlpha(c)) {
+                    identifier();
                 } else {
                     // Can we detect a series of invalid characters, rather than
                     // each character individually?
@@ -133,6 +157,14 @@ class Scanner {
 
     private boolean isDigit(final char c) {
         return c >= '0' && c <= '9';
+    }
+
+    private boolean isAlpha(final char c) {
+        return c >= 'a' && c <= 'z' || c >= 'A' && c <= 'Z' || c == '_';
+    }
+
+    private boolean isAlphaNumeric(final char c) {
+        return isAlpha(c) || isDigit(c);
     }
 
     private char peek() {
@@ -250,5 +282,21 @@ class Scanner {
         }
 
         addToken(NUMBER, Double.parseDouble(source.substring(start, current)));
+    }
+
+    private void identifier() {
+        while (isAlphaNumeric(peek())) {
+            advance();
+        }
+
+        // See if the identifier is a reserved word.
+        final String text = source.substring(start, current);
+
+        TokenType type = keywords.get(text);
+        if (type == null) {
+            type = IDENTIFIER;
+        }
+
+        addToken(type);
     }
 }
