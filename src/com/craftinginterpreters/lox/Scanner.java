@@ -235,10 +235,28 @@ class Scanner {
 
     private void comment() {
         if (match('/')) {
-            // A comment goes until the end of the line.
+            // A line comment goes until the end of the line.
             while (peek() != '\n' && !isAtEnd()) {
                 advance();
             }
+        } else if (match('*')) {
+            // A block comment goes until the end of the block is found.
+            while (!(peek() == '*' && peekNext() == '/') && !isAtEnd()) {
+                if (peek() == '\n') {
+                    line++;
+                }
+                advance();
+            }
+
+            // Unterminated block comment.
+            if (isAtEnd()) {
+                Lox.error(line, "Unterminated block comment.");
+                return;
+            }
+
+            // The closing block comment.
+            advance();
+            advance();
         } else {
             addToken(SLASH);
         }
